@@ -1,11 +1,23 @@
 package com.example.security1.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.example.security1.model.User;
+import com.example.security1.repository.UserRepository;
 
 @Controller // view를 리턴하겠다.
 public class IndexController {
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	@GetMapping({ "", "/" })
 	public String index() {
@@ -30,19 +42,25 @@ public class IndexController {
 	}
 
 	// 스프링 시큐리티가 해당 주소를 낚아챈다. - SecurityConfig 파일 작동 안 함
-	@GetMapping("/login")
-	public @ResponseBody String login() {
-		return "login";
+	@GetMapping("/loginForm")
+	public String loginForm() {
+		return "loginForm";
 	}
 
-	@GetMapping("/join")
-	public @ResponseBody String join() {
-		return "join";
+	@GetMapping("/joinForm")
+	public String joinForm() {
+		return "joinForm";
 	}
 
-	@GetMapping("/joinProc")
-	public @ResponseBody String joinProc() {
-		return "회원가입 완료됨!";
+	@PostMapping("/join")
+	public String join(User user) {
+		System.out.println(user.getUsername());
+		String rawPassword = user.getPassword();
+		String encPassword = bCryptPasswordEncoder.encode(rawPassword);
+		user.setPassword(rawPassword);
+		user.setRole("ROLE_USER");
+		userRepository.save(user); // 이렇게 하면 회원가입은 잘 된다. 하지만 패스워드 암호화가 되지 않았기 때문에 시큐리티 로그인이 되지 않는다.
+		return "redirect:/loginForm";
 	}
 
 }
