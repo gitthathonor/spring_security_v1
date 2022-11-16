@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.example.security1.model.User;
+import com.example.security1.model.Users;
 import com.example.security1.repository.UserRepository;
 
 @Controller // view를 리턴하겠다.
@@ -53,11 +53,11 @@ public class IndexController {
 	}
 
 	@PostMapping("/join")
-	public String join(User user) {
+	public String join(Users user) {
 		System.out.println(user.getUsername());
 		String rawPassword = user.getPassword();
 		String encPassword = bCryptPasswordEncoder.encode(rawPassword);
-		user.setPassword(rawPassword);
+		user.setPassword(encPassword);
 		user.setRole("ROLE_USER");
 		userRepository.save(user); // 이렇게 하면 회원가입은 잘 된다. 하지만 패스워드 암호화가 되지 않았기 때문에 시큐리티 로그인이 되지 않는다.
 		return "redirect:/loginForm";
