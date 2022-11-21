@@ -1,6 +1,8 @@
 package com.example.security1.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -61,6 +63,18 @@ public class IndexController {
 		user.setRole("ROLE_USER");
 		userRepository.save(user); // 이렇게 하면 회원가입은 잘 된다. 하지만 패스워드 암호화가 되지 않았기 때문에 시큐리티 로그인이 되지 않는다.
 		return "redirect:/loginForm";
+	}
+	
+	@Secured("ROLE_ADMIN")
+	@GetMapping("/info")
+	public @ResponseBody String info() {
+		return "개인정보";
+	}
+	
+	@PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+	@GetMapping("/data")
+	public @ResponseBody String data() {
+		return "데이터정보";
 	}
 
 }
